@@ -5,7 +5,7 @@ const logger = require('./logger');
 
 const app = require('./app');
 
-const port = parsInt(process.env.PORT || '8080', 10);
+const port = parseInt(process.env.PORT || '8080', 10);
 
 const server = stoppable(
     app.listen(port, () => {
