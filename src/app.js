@@ -1,12 +1,16 @@
 const express = require('express');
-const app = express();
 const logger = require('./logger');
+const cors = require('cors');
 
 const pino = require('pino-http')({
     logger,
 })
 
+const app = express();
+
 app.use(pino);
+
+app.use(cors());
 
 app.use('/', (req, res) => {
     logger.info("Home");
