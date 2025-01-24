@@ -1,6 +1,7 @@
 const express = require('express');
 const logger = require('./logger');
 const cors = require('cors');
+const helmet = require('helmet');
 
 const pino = require('pino-http')({
     logger,
@@ -8,9 +9,11 @@ const pino = require('pino-http')({
 
 const app = express();
 
-app.use(pino);
+app.use(helmet());
 
 app.use(cors());
+
+app.use(pino);
 
 app.use('/', (req, res) => {
     logger.info("Home");
