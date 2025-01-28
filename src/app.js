@@ -5,8 +5,8 @@ const cors = require('cors');
 const compression = require('compression');
 
 const pino = require('pino-http')({
-    logger,
-})
+  logger,
+});
 
 const app = express();
 
@@ -19,12 +19,12 @@ app.use(compression());
 app.use(pino);
 
 app.use('/', (req, res) => {
-    logger.info("Home");
-    res.status(200).json("Hello World");
-})
+  logger.info('Home');
+  res.status(200).json('Hello World');
+});
 
 app.use('/hello', (req, res) => {
-    res.status(200).send("hello");
-})
+  res.status(200).send('hello');
+});
 
-module.exports = app
+module.exports = app;
