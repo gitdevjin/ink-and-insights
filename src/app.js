@@ -13,7 +13,12 @@ const app = express();
 
 app.use(helmet());
 
-app.use(cors());
+app.use(
+  cors({
+    origin: 'http://localhost:5173', // ✅ Explicitly allow your frontend URL
+    credentials: true, // ✅ Allow cookies to be sent/received
+  })
+);
 
 app.use(compression());
 

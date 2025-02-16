@@ -8,7 +8,7 @@ const REFRESH_SECRET = process.env.REFRESH_TOKEN_SECRET;
 
 // Function to create tokens
 const generateTokens = (email, name) => {
-  const accessToken = jwt.sign({ email, name }, ACCESS_SECRET, { expiresIn: '15m' }); // Short-lived
+  const accessToken = jwt.sign({ email, name }, ACCESS_SECRET, { expiresIn: '60m' }); // Short-lived
   const refreshToken = jwt.sign({ email, name }, REFRESH_SECRET, { expiresIn: '7d' }); // Long-lived
   return { accessToken, refreshToken };
 };
@@ -23,7 +23,7 @@ module.exports.googleLogin = async (req, res) => {
   }
 
   try {
-    // Verify the Google access token
+    // Verify the Google access token`
     const googleRes = await fetch(
       `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`
     );
