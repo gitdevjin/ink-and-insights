@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { googleLogin, googleRefresh, googleLogout } = require('../api/auth/google');
+const { googleLogin, googleRefresh, googleLogout } = require('../auth/google');
 
 router.post('/google/login', googleLogin);
 router.post('/google/refresh', googleRefresh);

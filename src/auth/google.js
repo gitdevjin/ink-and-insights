@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
-const logger = require('../../logger');
-const prisma = require('../../prisma');
+const logger = require('../logger');
+const prisma = require('../prisma');
 
 const ACCESS_SECRET = process.env.ACCESS_TOKEN_SECRET;
 const REFRESH_SECRET = process.env.REFRESH_TOKEN_SECRET;
@@ -32,6 +32,8 @@ module.exports.googleLogin = async (req, res) => {
       return res.status(401).json({ error: 'Invalid Google token' });
     }
 
+    logger.info(googleUser);
+
     const user = await prisma.user.upsert({
       where: { email: googleUser.email },
       update: {}, // No need to update anything for now
@@ -50,7 +52,6 @@ module.exports.googleLogin = async (req, res) => {
     });
 
     logger.info(user);
-    logger.info(googleUser);
 
     // Create our own JWT
     const { accessToken, refreshToken } = generateTokens(user.id, user.profile.firstName);

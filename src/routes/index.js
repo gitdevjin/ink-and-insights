@@ -1,9 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const authenticate = require('../auth/authenticate');
 
-router.use('/api/auth', require('./auth'));
+router.use('/auth', require('./auth'));
 
-router.get('/api/user', require('../api/user'));
+router.post('/auth/test', authenticate, (req, res) => {
+  res.status(200).json({ message: 'You are Authenticated' });
+});
 
 router.get('/', (req, res) => {
   // Client's shouldn't cache this response (always request it fresh)
