@@ -1,15 +1,14 @@
 const jwt = require('jsonwebtoken');
 const logger = require('../../logger');
-
-const users = {}; // Simulated database (Replace with real DB)
+const prisma = require('../../prisma');
 
 const ACCESS_SECRET = process.env.ACCESS_TOKEN_SECRET;
 const REFRESH_SECRET = process.env.REFRESH_TOKEN_SECRET;
 
 // Function to create tokens
-const generateTokens = (email, name) => {
-  const accessToken = jwt.sign({ email, name }, ACCESS_SECRET, { expiresIn: '60m' }); // Short-lived
-  const refreshToken = jwt.sign({ email, name }, REFRESH_SECRET, { expiresIn: '7d' }); // Long-lived
+const generateTokens = (userId, name) => {
+  const accessToken = jwt.sign({ userId, name }, ACCESS_SECRET, { expiresIn: '60m' }); // Short-lived
+  const refreshToken = jwt.sign({ userId, name }, REFRESH_SECRET, { expiresIn: '7d' }); // Long-lived
   return { accessToken, refreshToken };
 };
 
@@ -28,21 +27,37 @@ module.exports.googleLogin = async (req, res) => {
       `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`
     );
     const googleUser = await googleRes.json();
-    console.log(googleUser);
 
     if (googleUser.error) {
       return res.status(401).json({ error: 'Invalid Google token' });
     }
 
-    logger.info(googleUser.email);
-    logger.info(googleUser.name);
+    const user = await prisma.user.upsert({
+      where: { email: googleUser.email },
+      update: {}, // No need to update anything for now
+      create: {
+        email: googleUser.email,
+        profile: {
+          create: {
+            firstName: googleUser.given_name, // Add default values if needed
+            lastName: googleUser.family_name,
+          },
+        },
+      },
+      include: {
+        profile: true, // Fetch profile as well
+      },
+    });
+
+    logger.info(user);
+    logger.info(googleUser);
 
     // Create our own JWT
-    const { accessToken, refreshToken } = generateTokens(googleUser.email, googleUser.given_name);
+    const { accessToken, refreshToken } = generateTokens(user.id, user.profile.firstName);
 
-    users[googleUser.email] = { refreshToken };
+    // Update database with refreshToken
+    await prisma.user.update({ where: { id: user.id }, data: { refreshToken: refreshToken } });
 
-    logger.info(users[googleUser.email]);
     // Send refresh token as http-only cookie (not accessible by JS)
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
@@ -62,14 +77,19 @@ module.exports.googleRefresh = async (req, res) => {
   if (!token) return res.status(401).json({ error: 'No refresh token' });
 
   try {
-    const { email, name } = jwt.verify(token, REFRESH_SECRET);
+    const { userId, name } = jwt.verify(token, REFRESH_SECRET);
 
-    if (users[email]?.refreshToken !== token) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (user.refreshToken !== token) {
       return res.status(403).json({ error: 'Invalid refresh token' });
     }
 
-    const { accessToken, refreshToken } = generateTokens(email, name);
-    users[email].refreshToken = refreshToken;
+    // Refresh the Tokens
+    const { accessToken, refreshToken } = generateTokens(userId, name);
+
+    // update the refreshToken in database
+    await prisma.user.update({ where: { id: userId }, data: { refreshToken: refreshToken } });
 
     res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: false, sameSite: 'strict' });
     res.json({ accessToken });
