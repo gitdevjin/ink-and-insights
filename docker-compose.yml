@@ -8,6 +8,8 @@ services:
     # Build the Docker Image using the Dockerfile
     # and current directory as the build context
     build: .
+    env_file:
+      - .env
     # Environment variables to use
     environment:
       # Our API will be running on http://localhost:8080
@@ -29,10 +31,6 @@ services:
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
       - AWS_SESSION_TOKEN=test
-
-      # For locally testing with Fragment-UI.
-      # - AWS_COGNITO_POOL_ID=
-      # - AWS_COGNITO_CLIENT_ID=
 
     # Ports to publish
     ports:
