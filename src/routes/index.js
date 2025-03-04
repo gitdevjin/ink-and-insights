@@ -1,9 +1,13 @@
 const express = require('express');
 const router = express.Router();
+const logger = require('../logger');
 const authenticate = require('../auth/authenticate');
 const multer = require('multer');
-const s3Client = require('../model/data/aws/s3Client');
-const { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const s3Client = require('../model/data/remote/s3Client');
+const {
+  PutObjectCommand /*GetObjectCommand, DeleteObjectCommand*/,
+} = require('@aws-sdk/client-s3');
+const prisma = require('../model/data/remote/prisma');
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -13,10 +17,11 @@ router.post('/auth/test', authenticate, (req, res) => {
   res.status(200).json({ message: 'You are Authenticated' });
 });
 
-router.post('/post/test', upload.array('images'), async (req, res) => {
+router.post('/post/test', authenticate, upload.array('images'), async (req, res) => {
   console.log('**REQUEST BODY;');
   console.log(req.body);
   console.log(req.files);
+  logger.info(req.user);
 
   const { content } = req.body;
   const files = req.files || [];
@@ -58,6 +63,16 @@ router.post('/post/test', upload.array('images'), async (req, res) => {
   });
 
   console.log(finalContent);
+
+  const post = await prisma.post.create({
+    data: { content: finalContent, userId: req.user.userId },
+  });
+
+  const images = await prisma.image.createMany({
+    data: imageUrls.map((url) => ({ postId: post.id, url })),
+  });
+
+  logger.info(images);
 
   console.log('**REQUEST BODY END;');
 

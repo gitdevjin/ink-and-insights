@@ -19,6 +19,7 @@ model User {
   refreshToken String?
   createdAt    DateTime @default(now())
   profile      Profile?
+  Post         Post[]
 }
 
 model Profile {
@@ -27,5 +28,22 @@ model Profile {
   lastName  String?
   dob       DateTime?
   userId    String    @unique
-  user      User      @relation(fields: [userId], references: [id])
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  images    Image[] // Relation to Images table
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Image {
+  id        Int      @id @default(autoincrement())
+  url       String // S3 URL
+  postId    Int
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 }

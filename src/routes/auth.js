@@ -14,8 +14,8 @@ router.get('/test', (req, res) => {
   if (!token) return res.status(401).json({ error: 'Unauthorized' });
 
   try {
-    const { email, name } = jwt.verify(token, ACCESS_SECRET);
-    res.json({ email: email, name: name });
+    const { userId, name } = jwt.verify(token, ACCESS_SECRET);
+    res.json({ userId: userId, name: name });
   } catch {
     res.status(403).json({ error: 'Invalid or expired token' });
   }
