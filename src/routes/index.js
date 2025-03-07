@@ -13,6 +13,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 router.use('/auth', require('./auth'));
 
+// For testing Authenticate middleware
 router.post('/auth/test', authenticate, (req, res) => {
   res.status(200).json({ message: 'You are Authenticated' });
 });
