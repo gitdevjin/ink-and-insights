@@ -1,13 +1,10 @@
 const logger = require('../logger');
 
-const {
-  writePost,
-  readPost,
-  deletePost,
-  writePostMedia,
-  readPostMedia,
-  deletePostMedia,
-} = require('./data');
+const { writePost, readPost, deletePost, writePostMedia, readPostMedia, deletePostMedia } =
+  require('./data').post;
+
+console.log(require('./data'));
+console.log(require('./data').post);
 
 class Post {
   constructor(userId, content, files, mappings) {
@@ -18,7 +15,20 @@ class Post {
     logger.info('Post Object created');
   }
 
-  save() {}
+  async save() {
+    try {
+      const imageUrls = await writePostMedia(this.files);
+      console.log(imageUrls);
+      console.log(this.userId);
+      console.log(this.content);
+      console.log(this.mappings);
+
+      await writePost(this.userId, this.content, imageUrls, this.mappings);
+    } catch (err) {
+      logger.error('Post save failed', err);
+      throw err;
+    }
+  }
   update() {}
   delete() {}
   readAll() {}

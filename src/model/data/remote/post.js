@@ -1,4 +1,4 @@
-const logger = require('../logger');
+const logger = require('../../../logger');
 const s3Client = require('./s3Client');
 const prisma = require('./prisma');
 const protocol = 'http://';
@@ -15,16 +15,17 @@ async function writePost(userId, content, imageUrls, blobMappings) {
   });
 
   logger.info(finalContent);
+  await prisma.$transaction(async (prisma) => {
+    const post = await prisma.post.create({
+      data: { content: finalContent, userId: userId },
+    });
+    logger.info(post);
 
-  const post = await prisma.post.create({
-    data: { content: finalContent, userId: userId },
+    const images = await prisma.image.createMany({
+      data: imageUrls.map((url) => ({ postId: post.id, url })),
+    });
+    logger.info(images);
   });
-  logger.info(post);
-
-  const images = await prisma.image.createMany({
-    data: imageUrls.map((url) => ({ postId: post.id, url })),
-  });
-  logger.info(images);
 }
 
 async function readPost() {}
@@ -32,7 +33,7 @@ async function readPost() {}
 async function deletePost() {}
 
 async function writePostMedia(files) {
-  return files.map(async (file) => {
+  const promises = files.map(async (file) => {
     const s3Key = `posts/${Date.now()}-${file.originalname}`;
     const params = {
       Bucket: process.env.AWS_S3_BUCKET_NAME,
@@ -50,6 +51,8 @@ async function writePostMedia(files) {
     const s3Url = `${protocol}${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
     return s3Url;
   });
+
+  return Promise.all(promises);
 }
 
 async function readPostMedia() {}
@@ -59,6 +62,6 @@ async function deletePostMedia() {}
 module.exports.writePost = writePost;
 module.exports.readPost = readPost;
 module.exports.deletePost = deletePost;
-module.exports.writePostData = writePostMedia;
-module.exports.readPost = readPostMedia;
-module.exports.deletePostData = deletePostMedia;
+module.exports.writePostMedia = writePostMedia;
+module.exports.readPostMedia = readPostMedia;
+module.exports.deletePostMedia = deletePostMedia;

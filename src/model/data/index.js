@@ -1,10 +1,7 @@
-if (process.env.DATABASE_STRATEGY === 'local') {
-  module.exports = require('./memory/');
-}
-// AWS And SQL DB
-else if (process.env.DATABASE_STRATEGY === 'remote') {
-  module.exports = require('./remote');
-  // ELSE, ERROR
-} else {
-  console.log('DATABASE STRATEGY is not selected');
-}
+const database = {
+  post: require(`./${process.env.DATABASE_STRATEGY}/post`),
+  comment: require(`./${process.env.DATABASE_STRATEGY}/comment`),
+  //user: require(`./${process.env.DATABASE_STRATEGY}/user`), // Add more models here
+};
+
+module.exports = database;
