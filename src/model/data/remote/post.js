@@ -15,15 +15,17 @@ async function writePost(userId, content, imageUrls, blobMappings) {
   });
 
   logger.info(finalContent);
+
   await prisma.$transaction(async (prisma) => {
     const post = await prisma.post.create({
       data: { content: finalContent, userId: userId },
     });
-    logger.info(post);
 
     const images = await prisma.image.createMany({
       data: imageUrls.map((url) => ({ postId: post.id, url })),
     });
+
+    logger.info(post);
     logger.info(images);
   });
 }
@@ -45,12 +47,13 @@ async function writePostMedia(files) {
 
     const command = new PutObjectCommand(params);
     await s3Client.send(command);
-    logger.info(s3Key);
 
     // Construct the S3 URL manually since v3 doesn’t return Location
     const s3Url = `${protocol}${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
     return s3Url;
   });
+
+  logger.info(promises);
 
   return Promise.all(promises);
 }

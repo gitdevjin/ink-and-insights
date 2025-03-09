@@ -18,10 +18,7 @@ class Post {
   async save() {
     try {
       const imageUrls = await writePostMedia(this.files);
-      console.log(imageUrls);
-      console.log(this.userId);
-      console.log(this.content);
-      console.log(this.mappings);
+      logger.info(imageUrls);
 
       await writePost(this.userId, this.content, imageUrls, this.mappings);
     } catch (err) {

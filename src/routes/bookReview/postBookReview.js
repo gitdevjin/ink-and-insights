@@ -3,11 +3,6 @@ const { Post } = require('../../model/post');
 
 module.exports = async (req, res) => {
   try {
-    console.log('**REQUEST BODY START;');
-    console.log(req.body);
-    console.log(req.files);
-    logger.info(req.user);
-
     const { content } = req.body;
     const files = req.files || [];
 
@@ -21,7 +16,8 @@ module.exports = async (req, res) => {
     });
 
     const post = new Post(req.user.userId, content, files, blobMappings);
-    post.save();
+    await post.save();
+
     res.status(200).json({ message: 'Posting bookReview Successful' });
   } catch (err) {
     logger.err(err);

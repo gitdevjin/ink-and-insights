@@ -22,8 +22,7 @@ services:
       # Use the LocalStack endpoint vs. AWS for S3 AWS SDK clients.
       # NOTE: we use Docker's internal network to the localstack container
       - AWS_S3_ENDPOINT_URL=http://localstack:4566
-      # This S3 bucket need to get created first, see
-      # local-aws-setup.sh. We'll default to 'fragments' as the name, unless
+      # local-aws-setup.sh. We'll default to 'ink' as the name, unless
       # something else is defined in the env.
       - AWS_S3_BUCKET_NAME=${AWS_S3_BUCKET_NAME:-ink}
 
@@ -37,16 +36,12 @@ services:
     ports:
       - '8080:8080'
 
-  # LocalStack for S3, see https://docs.localstack.cloud/get-started/#docker-compose
-  # Interact via awscli-local, see https://docs.localstack.cloud/integrations/aws-cli/#installation
   localstack:
     # https://hub.docker.com/r/localstack/localstack
     image: localstack/localstack
     ports:
       - '4566:4566'
     environment:
-      # See https://docs.localstack.cloud/localstack/configuration/ and
-      # https://hub.docker.com/r/localstack/localstack for config details.
       # We only want to run S3
       - SERVICES=s3
       # We're always working in us-east-1
