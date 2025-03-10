@@ -3,7 +3,7 @@ const { Post } = require('../../model/post');
 
 module.exports = async (req, res) => {
   try {
-    const { content } = req.body;
+    const { content, title, category } = req.body;
     const files = req.files || [];
 
     // Build mapping from Blob URLs to S3 URLs
@@ -15,12 +15,12 @@ module.exports = async (req, res) => {
       }
     });
 
-    const post = new Post(req.user.userId, content, files, blobMappings);
+    const post = new Post(req.user.userId, title, content, category, files, blobMappings);
     await post.save();
 
     res.status(200).json({ message: 'Posting bookReview Successful' });
   } catch (err) {
-    logger.err(err);
+    logger.error(err);
     return res.status(500).json({ message: 'Posting bookReview Failed' });
   }
 };

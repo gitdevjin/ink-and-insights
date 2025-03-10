@@ -5,7 +5,7 @@ const authenticate = require('../auth/authenticate');
 
 router.use('/auth', require('./auth'));
 
-router.use('/bookreview', authenticate, require('./bookReview'));
+router.use('/post', authenticate, require('./posts'));
 
 // For testing Authenticate middleware
 router.post('/auth/test', authenticate, (req, res) => {

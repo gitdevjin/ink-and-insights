@@ -1,13 +1,13 @@
 const logger = require('../../../logger');
 const s3Client = require('./s3Client');
 const prisma = require('./prisma');
-const protocol = 'http://';
+const protocol = 'http://localhost:8080';
 
 const {
   PutObjectCommand /*GetObjectCommand, DeleteObjectCommand*/,
 } = require('@aws-sdk/client-s3');
 
-async function writePost(userId, content, imageUrls, blobMappings) {
+async function writePost(userId, title, content, category, imageUrls, blobMappings) {
   let finalContent = content;
 
   Object.keys(blobMappings).forEach((blobUrl, index) => {
@@ -18,7 +18,7 @@ async function writePost(userId, content, imageUrls, blobMappings) {
 
   await prisma.$transaction(async (prisma) => {
     const post = await prisma.post.create({
-      data: { content: finalContent, userId: userId },
+      data: { content: finalContent, title, category, userId },
     });
 
     const images = await prisma.image.createMany({
@@ -36,7 +36,7 @@ async function deletePost() {}
 
 async function writePostMedia(files) {
   const promises = files.map(async (file) => {
-    const s3Key = `posts/${Date.now()}-${file.originalname}`;
+    const s3Key = `images/${Date.now()}-${file.originalname}`;
     const params = {
       Bucket: process.env.AWS_S3_BUCKET_NAME,
       Key: s3Key,
@@ -49,16 +49,21 @@ async function writePostMedia(files) {
     await s3Client.send(command);
 
     // Construct the S3 URL manually since v3 doesn’t return Location
-    const s3Url = `${protocol}${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
-    return s3Url;
+    const imageUrl = `${protocol}/${s3Key}`;
+    return imageUrl;
   });
-
-  logger.info(promises);
 
   return Promise.all(promises);
 }
 
 async function readPostMedia() {}
+
+async function readPostAll(category) {
+  logger.info('ReadPost Triggered');
+  const posts = await prisma.post.findMany({ where: { category: category } });
+  logger.info(posts);
+  return posts;
+}
 
 async function deletePostMedia() {}
 
@@ -68,3 +73,4 @@ module.exports.deletePost = deletePost;
 module.exports.writePostMedia = writePostMedia;
 module.exports.readPostMedia = readPostMedia;
 module.exports.deletePostMedia = deletePostMedia;
+module.exports.readPostAll = readPostAll;
