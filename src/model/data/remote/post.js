@@ -4,7 +4,8 @@ const prisma = require('./prisma');
 const protocol = 'http://localhost:8080';
 
 const {
-  PutObjectCommand /*GetObjectCommand, DeleteObjectCommand*/,
+  PutObjectCommand,
+  GetObjectCommand /* DeleteObjectCommand*/,
 } = require('@aws-sdk/client-s3');
 
 async function writePost(userId, title, content, category, imageUrls, blobMappings) {
@@ -30,7 +31,12 @@ async function writePost(userId, title, content, category, imageUrls, blobMappin
   });
 }
 
-async function readPost() {}
+async function readPost(postId) {
+  const post = await prisma.post.findFirst({
+    where: { id: parseInt(postId) },
+  });
+  return post;
+}
 
 async function deletePost() {}
 
@@ -48,7 +54,7 @@ async function writePostMedia(files) {
     const command = new PutObjectCommand(params);
     await s3Client.send(command);
 
-    // Construct the S3 URL manually since v3 doesn’t return Location
+    // ImageUrls to replace blobUrls with in content
     const imageUrl = `${protocol}/${s3Key}`;
     return imageUrl;
   });
@@ -56,11 +62,56 @@ async function writePostMedia(files) {
   return Promise.all(promises);
 }
 
-async function readPostMedia() {}
+// Convert a stream of data into a Buffer, by collecting
+// chunks of data until finished, then assembling them together.
+// We wrap the whole thing in a Promise so it's easier to consume.
+const streamToBuffer = (stream) =>
+  new Promise((resolve, reject) => {
+    // As the data streams in, we'll collect it into an array.
+    const chunks = [];
+
+    // Streams have events that we can listen for and run
+    // code.  We need to know when new `data` is available,
+    // if there's an `error`, and when we're at the `end`
+    // of the stream.
+
+    // When there's data, add the chunk to our chunks list
+    stream.on('data', (chunk) => chunks.push(chunk));
+    // When there's an error, reject the Promise
+    stream.on('error', reject);
+    // When the stream is done, resolve with a new Buffer of our chunks
+    stream.on('end', () => resolve(Buffer.concat(chunks)));
+  });
+
+async function readPostMedia(key) {
+  const params = {
+    Bucket: process.env.AWS_S3_BUCKET_NAME,
+    Key: `images/${key}`,
+  };
+
+  const command = new GetObjectCommand(params);
+
+  try {
+    const data = await s3Client.send(command);
+    return streamToBuffer(data.Body);
+  } catch (err) {
+    console.error('Error streaming image from S3:', err);
+  }
+}
 
 async function readPostAll(category) {
-  logger.info('ReadPost Triggered');
-  const posts = await prisma.post.findMany({ where: { category: category } });
+  logger.info('ReadPostAll Triggered');
+  const posts = await prisma.post.findMany({
+    where: { category: category },
+    select: {
+      id: true,
+      title: true,
+      userId: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
   logger.info(posts);
   return posts;
 }

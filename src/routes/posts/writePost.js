@@ -15,8 +15,8 @@ module.exports = async (req, res) => {
       }
     });
 
-    const post = new Post(req.user.userId, title, content, category, files, blobMappings);
-    await post.save();
+    const post = new Post(req.user.userId, title, content, category);
+    await post.save(files, blobMappings);
 
     res.status(200).json({ message: 'Posting bookReview Successful' });
   } catch (err) {

@@ -5,6 +5,7 @@ const authenticate = require('../auth/authenticate');
 
 router.use('/auth', require('./auth'));
 
+router.use('/images/:s3key', require('../routes/posts/readPostImage'));
 router.use('/post', authenticate, require('./posts'));
 
 // For testing Authenticate middleware

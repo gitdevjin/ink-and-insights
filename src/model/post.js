@@ -13,40 +13,42 @@ const {
 console.log(require('./data').post);
 
 class Post {
-  constructor(userId, title, content, category, files, mappings) {
+  constructor(userId, title, content, category) {
     this.userId = userId;
     this.title = title;
     this.content = content;
     this.category = category;
-    this.files = files;
-    this.mappings = mappings;
+
     logger.info('Post Object created');
   }
 
-  async save() {
+  async save(files, mappings) {
     try {
-      const imageUrls = await writePostMedia(this.files);
+      const imageUrls = await writePostMedia(files);
       logger.info(imageUrls);
 
-      await writePost(
-        this.userId,
-        this.title,
-        this.content,
-        this.category,
-        imageUrls,
-        this.mappings
-      );
+      await writePost(this.userId, this.title, this.content, this.category, imageUrls, mappings);
     } catch (err) {
       logger.error('Post save failed', err);
       throw err;
     }
   }
+
   update() {}
+
   delete() {}
+
   static async readAll(category) {
     return await readPostAll(category);
   }
-  readOne() {}
+
+  static async readOne(postId) {
+    return await readPost(postId);
+  }
+
+  static async readMedia(key) {
+    return await readPostMedia(key);
+  }
 }
 
 module.exports.Post = Post;
