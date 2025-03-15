@@ -8,6 +8,7 @@ const {
   readPostAll,
   readPostMedia,
   deletePostMedia,
+  updatePost,
 } = require('./data').post;
 
 console.log(require('./data').post);
@@ -34,7 +35,18 @@ class Post {
     }
   }
 
-  update() {}
+  static async edit(postId, title, content, deletedImages, files, mappings) {
+    //Write new Media
+    const imageUrls = await writePostMedia(files);
+
+    //UpdatePost
+    await updatePost(postId, title, content, files, imageUrls, mappings);
+
+    //Delete old Media
+    await deletePostMedia(deletedImages);
+
+    logger.info(imageUrls);
+  }
 
   delete() {}
 
