@@ -7,7 +7,9 @@ router.post('/write', upload.array('images'), require('./writePost'));
 router.get('/read/:id', require('./readPostOne'));
 
 router.get('/edit/:id', require('./readPostOne'));
-router.post('/edit/:id', require('./editPost'));
+router.put('/edit/:id', upload.array('images'), require('./editPost'));
+
+router.delete('/delete/:id', require('./deletePost'));
 
 router.get('/list/:category', require('./readPostAll'));
 

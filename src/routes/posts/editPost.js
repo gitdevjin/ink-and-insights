@@ -4,14 +4,21 @@ const { Post } = require('../../model/post');
 module.exports = async (req, res) => {
   try {
     const { content, title } = req.body;
-    const postId = req.params.id;
+    const postId = parseInt(req.params.id);
     const files = req.files || [];
-    const deletedImages = Object.values(req.body).filter((key) => key.startsWith('deletedImages'));
 
-    logger.log('Deleted Images:', deletedImages);
-    const post = await Post.readOne(postId);
+    const deletedImages = [];
+    Object.keys(req.body).forEach((key) => {
+      if (key.startsWith('deletedImages')) {
+        const index = parseInt(key.replace('deletedImages', ''), 10);
+        deletedImages[index] = req.body[key];
+      }
+    });
 
-    if (post.userId !== req.user.userId) {
+    console.log('Deleted Images:', deletedImages);
+    const oldPost = await Post.readOne(postId);
+
+    if (oldPost.userId !== req.user.userId) {
       res.status(403).json({ message: 'You have no right to edit this post' });
     }
 
@@ -24,9 +31,11 @@ module.exports = async (req, res) => {
       }
     });
 
+    logger.info('blobMappings', blobMappings);
+
     await Post.edit(postId, title, content, deletedImages, files, blobMappings);
 
-    res.status(200).json({ message: 'Posting bookReview Successful' });
+    res.status(200).json({ message: 'Editing bookReview Successful' });
   } catch (err) {
     logger.error(err);
     return res.status(500).json({ message: 'Posting bookReview Failed' });

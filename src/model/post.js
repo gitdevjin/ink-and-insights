@@ -9,6 +9,7 @@ const {
   readPostMedia,
   deletePostMedia,
   updatePost,
+  getAllPostMedia,
 } = require('./data').post;
 
 console.log(require('./data').post);
@@ -21,6 +22,18 @@ class Post {
     this.category = category;
 
     logger.info('Post Object created');
+  }
+
+  static async readAll(category) {
+    return await readPostAll(category);
+  }
+
+  static async readOne(postId) {
+    return await readPost(postId);
+  }
+
+  static async readMedia(key) {
+    return await readPostMedia(key);
   }
 
   async save(files, mappings) {
@@ -36,6 +49,7 @@ class Post {
   }
 
   static async edit(postId, title, content, deletedImages, files, mappings) {
+    logger.info('Edit triggered');
     //Write new Media
     const imageUrls = await writePostMedia(files);
 
@@ -48,18 +62,12 @@ class Post {
     logger.info(imageUrls);
   }
 
-  delete() {}
-
-  static async readAll(category) {
-    return await readPostAll(category);
-  }
-
-  static async readOne(postId) {
-    return await readPost(postId);
-  }
-
-  static async readMedia(key) {
-    return await readPostMedia(key);
+  static async delete(postId) {
+    const media = await getAllPostMedia(postId);
+    console.log(media);
+    const mediaUrls = media.map((img) => img.url);
+    await deletePostMedia(mediaUrls);
+    await deletePost(postId);
   }
 }
 

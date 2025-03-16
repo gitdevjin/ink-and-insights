@@ -8,9 +8,9 @@ module.exports = async (req, res) => {
     const postId = req.params.id;
     const post = await Post.readOne(postId);
     res.setHeader('Cache-Control', 'no-store');
-    res.status(200).json({ message: 'Reading One BookReview Successful', data: post });
+    res.status(200).json({ message: 'Reading One Post Successful', data: post });
   } catch (err) {
     logger.error(err);
-    return res.status(500).json({ message: 'Reading One BookReview Failed' });
+    return res.status(500).json({ message: 'Reading One Post Failed' });
   }
 };

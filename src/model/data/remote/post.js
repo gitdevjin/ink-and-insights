@@ -57,7 +57,9 @@ async function readPost(postId) {
   return post;
 }
 
-async function deletePost() {}
+async function deletePost(id) {
+  await prisma.post.delete({ where: { id } });
+}
 
 async function writePostMedia(files) {
   const promises = files.map(async (file) => {
@@ -135,17 +137,23 @@ async function readPostAll(category) {
   return posts;
 }
 
+async function getAllPostMedia(id) {
+  const media = await prisma.image.findMany({ where: { postId: id } });
+  return media;
+}
+
 async function deletePostMedia(deletedImages) {
   const deletePromises = deletedImages.map(async (url) => {
-    logger.info(url);
+    console.log('Deleting:', url);
     const s3Key = url.split('/').pop();
+    logger.info('s3Key:', s3Key);
     const params = {
       Bucket: process.env.AWS_S3_BUCKET_NAME,
       Key: `images/${s3Key}`,
     };
     const command = new DeleteObjectCommand(params);
-
-    s3Client.send(command);
+    const s3Response = await s3Client.send(command);
+    logger.info('S3 Delete Response:', s3Response);
 
     await prisma.image.deleteMany({
       where: {
@@ -167,3 +175,4 @@ module.exports.readPostMedia = readPostMedia;
 module.exports.deletePostMedia = deletePostMedia;
 module.exports.readPostAll = readPostAll;
 module.exports.updatePost = updatePost;
+module.exports.getAllPostMedia = getAllPostMedia;
