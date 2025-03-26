@@ -5,18 +5,19 @@ const protocol = 'http://localhost:8080';
 
 const { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 
-async function writePost(userId, title, content, category, imageUrls, blobMappings) {
+async function writePost(userId, title, content, subCategory, imageUrls, blobMappings) {
   let finalContent = content;
 
   Object.keys(blobMappings).forEach((blobUrl, index) => {
     finalContent = finalContent.replace(blobUrl, imageUrls[index]);
   });
 
+  const subCategoryId = parseInt(subCategory);
   logger.info(finalContent);
 
   await prisma.$transaction(async (prisma) => {
     const post = await prisma.post.create({
-      data: { content: finalContent, title, category, userId },
+      data: { content: finalContent, title, subCategoryId, userId },
     });
 
     const images = await prisma.image.createMany({
@@ -48,13 +49,29 @@ async function updatePost(postId, title, content, imageUrls, blobMappings) {
 }
 
 async function readPost(postId) {
-  const post = await prisma.post.findFirst({
-    where: { id: parseInt(postId) },
-    include: {
-      images: true,
-    },
-  });
-  return post;
+  const id = parseInt(postId);
+
+  try {
+    const post = await prisma.post.update({
+      where: { id },
+      data: { view: { increment: 1 } }, // Increment view count
+      include: {
+        images: true, // Include images
+        user: {
+          include: {
+            profile: {
+              select: { nickname: true }, // Get only nickname
+            },
+          },
+        },
+      },
+    });
+
+    return post;
+  } catch (err) {
+    logger.info(err);
+    return null;
+  }
 }
 
 async function deletePost(id) {
@@ -120,10 +137,10 @@ async function readPostMedia(key) {
   }
 }
 
-async function readPostAll(category) {
+async function readPostAll(subCategoryId) {
   logger.info('ReadPostAll Triggered');
   const posts = await prisma.post.findMany({
-    where: { category: category },
+    where: { subCategoryId: parseInt(subCategoryId) },
     select: {
       id: true,
       title: true,
@@ -144,7 +161,6 @@ async function getAllPostMedia(id) {
 
 async function deletePostMedia(deletedImages) {
   const deletePromises = deletedImages.map(async (url) => {
-    console.log('Deleting:', url);
     const s3Key = url.split('/').pop();
     logger.info('s3Key:', s3Key);
     const params = {

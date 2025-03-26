@@ -11,6 +11,6 @@ router.put('/edit/:id', upload.array('images'), require('./editPost'));
 
 router.delete('/delete/:id', require('./deletePost'));
 
-router.get('/list/:category', require('./readPostAll'));
+router.get('/list/:subcategory', require('./readPostAll'));
 
 module.exports = router;

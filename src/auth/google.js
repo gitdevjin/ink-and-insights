@@ -41,7 +41,8 @@ module.exports.googleLogin = async (req, res) => {
         email: googleUser.email,
         profile: {
           create: {
-            firstName: googleUser.given_name, // Add default values if needed
+            nickname: googleUser.given_name,
+            firstName: googleUser.given_name,
             lastName: googleUser.family_name,
           },
         },
