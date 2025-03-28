@@ -24,6 +24,7 @@ model User {
 
 model Profile {
   id        Int       @id @default(autoincrement())
+  nickname  String?
   firstName String
   lastName  String?
   dob       DateTime?
@@ -40,6 +41,8 @@ model Post {
   images        Image[] // Relation to Images table
   userId        String
   user          User        @relation(fields: [userId], references: [id])
+  view          Int         @default(0)
+  like          Int         @default(0)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 }

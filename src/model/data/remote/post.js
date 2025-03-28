@@ -55,12 +55,19 @@ async function readPost(postId) {
     const post = await prisma.post.update({
       where: { id },
       data: { view: { increment: 1 } }, // Increment view count
-      include: {
-        images: true, // Include images
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        userId: true,
+        createdAt: true,
+        updatedAt: true,
+        view: true,
+        images: true,
         user: {
           include: {
             profile: {
-              select: { nickname: true }, // Get only nickname
+              select: { nickname: true },
             },
           },
         },
@@ -137,21 +144,41 @@ async function readPostMedia(key) {
   }
 }
 
-async function readPostAll(subCategoryId) {
+async function readPostAll(subCategoryId, pageNum) {
   logger.info('ReadPostAll Triggered');
+
+  const id = parseInt(subCategoryId);
+  const pageSize = 15;
+
+  const totalPosts = await prisma.post.count({
+    where: { subCategoryId: id },
+  });
+
   const posts = await prisma.post.findMany({
-    where: { subCategoryId: parseInt(subCategoryId) },
+    where: { subCategoryId: id },
+    skip: (pageNum - 1) * pageSize,
+    take: pageSize,
     select: {
       id: true,
       title: true,
       userId: true,
       createdAt: true,
       updatedAt: true,
+      view: true,
+      user: {
+        select: {
+          profile: {
+            select: {
+              nickname: true, // Get only the nickname
+            },
+          },
+        },
+      },
     },
   });
 
   logger.info(posts);
-  return posts;
+  return { totalPosts, posts };
 }
 
 async function getAllPostMedia(id) {

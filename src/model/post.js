@@ -24,8 +24,8 @@ class Post {
     logger.info('Post Object created');
   }
 
-  static async readAll(category) {
-    return await readPostAll(category);
+  static async readAll(subcategory, pageNum) {
+    return await readPostAll(subcategory, pageNum);
   }
 
   static async readOne(postId) {
