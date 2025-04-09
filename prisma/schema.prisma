@@ -14,12 +14,13 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
+  id           String     @id @default(uuid())
+  email        String     @unique
   refreshToken String?
-  createdAt    DateTime @default(now())
+  createdAt    DateTime   @default(now())
   profile      Profile?
   Post         Post[]
+  likes        PostLike[]
 }
 
 model Profile {
@@ -42,7 +43,8 @@ model Post {
   userId        String
   user          User        @relation(fields: [userId], references: [id])
   view          Int         @default(0)
-  like          Int         @default(0)
+  likeCount     Int         @default(0)
+  likes         PostLike[]
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 }
@@ -67,4 +69,14 @@ model SubCategory {
   categoryId Int
   Posts      Post[]
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+}
+
+model PostLike {
+  id     Int    @id @default(autoincrement())
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId Int
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  @@unique([postId, userId]) // Ensures a user can only like a post once
 }

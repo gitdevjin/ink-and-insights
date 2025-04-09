@@ -10,6 +10,9 @@ const {
   deletePostMedia,
   updatePost,
   getAllPostMedia,
+  getLike,
+  removeLike,
+  addLike,
 } = require('./data').post;
 
 console.log(require('./data').post);
@@ -28,8 +31,10 @@ class Post {
     return await readPostAll(subcategory, pageNum);
   }
 
-  static async readOne(postId) {
-    return await readPost(postId);
+  static async readOne(userId, postId) {
+    const post = await readPost(postId);
+    const liked = await getLike(userId, postId);
+    return { post, liked };
   }
 
   static async readMedia(key) {
@@ -54,7 +59,7 @@ class Post {
     const imageUrls = await writePostMedia(files);
 
     //UpdatePost
-    await updatePost(postId, title, content, files, imageUrls, mappings);
+    await updatePost(postId, title, content, imageUrls, mappings);
 
     //Delete old Media
     await deletePostMedia(deletedImages);
@@ -68,6 +73,20 @@ class Post {
     const mediaUrls = media.map((img) => img.url);
     await deletePostMedia(mediaUrls);
     await deletePost(postId);
+  }
+
+  static async toggleLike(userId, postId) {
+    const existingLike = await getLike(userId, postId);
+    logger.info('Exist?');
+    logger.info(existingLike);
+
+    if (existingLike) {
+      await removeLike(userId, postId);
+      return { message: 'Like removed', liked: false };
+    } else {
+      await addLike(userId, postId);
+      return { message: 'Liked', liked: true };
+    }
   }
 }
 

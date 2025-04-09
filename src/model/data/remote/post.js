@@ -63,6 +63,7 @@ async function readPost(postId) {
         createdAt: true,
         updatedAt: true,
         view: true,
+        likeCount: true,
         images: true,
         user: {
           include: {
@@ -165,6 +166,7 @@ async function readPostAll(subCategoryId, pageNum) {
       createdAt: true,
       updatedAt: true,
       view: true,
+      likeCount: true,
       user: {
         select: {
           profile: {
@@ -210,6 +212,29 @@ async function deletePostMedia(deletedImages) {
   await Promise.all(deletePromises);
 }
 
+async function getLike(userId, postId) {
+  await prisma.postLike.findUnique({
+    where: {
+      postId_userId: { postId, userId },
+    },
+  });
+}
+async function removeLike(userId, postId) {
+  return await prisma.postLike.delete({
+    where: {
+      postId_userId: { postId, userId },
+    },
+  });
+}
+async function addLike(userId, postId) {
+  return await prisma.postLike.create({
+    data: {
+      userId,
+      postId,
+    },
+  });
+}
+
 module.exports.writePost = writePost;
 module.exports.readPost = readPost;
 module.exports.deletePost = deletePost;
@@ -219,3 +244,6 @@ module.exports.deletePostMedia = deletePostMedia;
 module.exports.readPostAll = readPostAll;
 module.exports.updatePost = updatePost;
 module.exports.getAllPostMedia = getAllPostMedia;
+module.exports.getLike = getLike;
+module.exports.removeLike = removeLike;
+module.exports.addLike = addLike;
