@@ -1,4 +1,5 @@
 const logger = require('../logger');
+const { updateLikeCount } = require('./data/remote/post');
 
 const {
   writePost,
@@ -87,6 +88,10 @@ class Post {
       await addLike(userId, postId);
       return { message: 'Liked', liked: true };
     }
+  }
+
+  static async handleLikeCount(postId, increase) {
+    await updateLikeCount(postId, increase);
   }
 }
 

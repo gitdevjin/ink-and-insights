@@ -62,6 +62,7 @@ async function readPost(postId) {
         userId: true,
         createdAt: true,
         updatedAt: true,
+        subCategory: true,
         view: true,
         likeCount: true,
         images: true,
@@ -165,6 +166,7 @@ async function readPostAll(subCategoryId, pageNum) {
       userId: true,
       createdAt: true,
       updatedAt: true,
+      subCategory: true,
       view: true,
       likeCount: true,
       user: {
@@ -213,7 +215,7 @@ async function deletePostMedia(deletedImages) {
 }
 
 async function getLike(userId, postId) {
-  await prisma.postLike.findUnique({
+  return await prisma.postLike.findUnique({
     where: {
       postId_userId: { postId, userId },
     },
@@ -235,6 +237,17 @@ async function addLike(userId, postId) {
   });
 }
 
+async function updateLikeCount(postId, increase) {
+  await prisma.post.update({
+    where: { id: postId },
+    data: {
+      likeCount: {
+        [increase ? 'increment' : 'decrement']: 1,
+      },
+    },
+  });
+}
+
 module.exports.writePost = writePost;
 module.exports.readPost = readPost;
 module.exports.deletePost = deletePost;
@@ -247,3 +260,4 @@ module.exports.getAllPostMedia = getAllPostMedia;
 module.exports.getLike = getLike;
 module.exports.removeLike = removeLike;
 module.exports.addLike = addLike;
+module.exports.updateLikeCount = updateLikeCount;

@@ -21,6 +21,7 @@ model User {
   profile      Profile?
   Post         Post[]
   likes        PostLike[]
+  Comment      Comment[]
 }
 
 model Profile {
@@ -45,6 +46,8 @@ model Post {
   view          Int         @default(0)
   likeCount     Int         @default(0)
   likes         PostLike[]
+  commentCount  Int         @default(0)
+  Comments      Comment[]
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 }
@@ -79,4 +82,15 @@ model PostLike {
   userId String
 
   @@unique([postId, userId]) // Ensures a user can only like a post once
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
 }

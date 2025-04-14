@@ -7,11 +7,12 @@ module.exports = async (req, res) => {
     const userId = req.user.userId;
     const postId = parseInt(req.params.id);
 
-    const like = await Post.toggleLike(userId, postId);
+    const result = await Post.toggleLike(userId, postId);
 
     // TO DO : update total like count;
+    await Post.handleLikeCount(postId, result.liked);
 
-    res.status(200).json({ data: like });
+    res.status(200).json({ data: result });
   } catch (err) {
     logger.error(err);
     return res.status(500).json({ message: 'Reading One Post Failed' });

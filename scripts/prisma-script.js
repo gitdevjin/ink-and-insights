@@ -3,6 +3,11 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function main() {
+  // Create Categories
+  await prisma.category.createMany({
+    data: [{ name: 'Review' }, { name: 'Discussion' }],
+  });
+
   // Find the 'Review' category
   const reviewCategory = await prisma.category.findFirst({
     where: { name: 'Review' },
