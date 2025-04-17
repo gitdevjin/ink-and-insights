@@ -16,10 +16,12 @@ module.exports = async (req, res) => {
     });
 
     console.log('Deleted Images:', deletedImages);
-    const oldPost = await Post.readOne(postId);
+    const oldPost = await Post.readOne(req.user.userId, postId);
+    console.log(oldPost);
+    console.log('userid:', req.user.userId);
 
-    if (oldPost.userId !== req.user.userId) {
-      res.status(403).json({ message: 'You have no right to edit this post' });
+    if (oldPost.post.userId !== req.user.userId) {
+      return res.status(403).json({ message: 'You have no right to edit this post' });
     }
 
     // Build mapping from Blob URLs to S3 URLs

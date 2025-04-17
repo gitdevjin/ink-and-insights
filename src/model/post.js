@@ -1,5 +1,4 @@
 const logger = require('../logger');
-const { updateLikeCount } = require('./data/remote/post');
 
 const {
   writePost,
@@ -14,6 +13,8 @@ const {
   getLike,
   removeLike,
   addLike,
+  updateLikeCount,
+  updateCommentCount,
 } = require('./data').post;
 
 console.log(require('./data').post);
@@ -36,6 +37,11 @@ class Post {
     const post = await readPost(postId);
     const liked = await getLike(userId, postId);
     return { post, liked };
+  }
+
+  static async getCommentCount(postId) {
+    const post = await readPost(postId);
+    return post.commentCount;
   }
 
   static async readMedia(key) {
@@ -92,6 +98,10 @@ class Post {
 
   static async handleLikeCount(postId, increase) {
     await updateLikeCount(postId, increase);
+  }
+
+  static async handleCommentCount(postId, increase) {
+    await updateCommentCount(postId, increase);
   }
 }
 

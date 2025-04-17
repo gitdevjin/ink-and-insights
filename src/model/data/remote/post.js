@@ -36,7 +36,7 @@ async function updatePost(postId, title, content, imageUrls, blobMappings) {
   });
 
   const post = await prisma.post.update({
-    where: { id: parseInt(postId) }, // Ensure postId is an integer
+    where: { id: postId },
     data: { content: finalContent, title },
   });
 
@@ -65,6 +65,7 @@ async function readPost(postId) {
         subCategory: true,
         view: true,
         likeCount: true,
+        commentCount: true,
         images: true,
         user: {
           include: {
@@ -152,9 +153,11 @@ async function readPostAll(subCategoryId, pageNum) {
   const id = parseInt(subCategoryId);
   const pageSize = 15;
 
+  //*****This should be separated***********//
   const totalPosts = await prisma.post.count({
     where: { subCategoryId: id },
   });
+  /*******************/
 
   const posts = await prisma.post.findMany({
     where: { subCategoryId: id },
@@ -169,6 +172,7 @@ async function readPostAll(subCategoryId, pageNum) {
       subCategory: true,
       view: true,
       likeCount: true,
+      commentCount: true,
       user: {
         select: {
           profile: {
@@ -248,6 +252,17 @@ async function updateLikeCount(postId, increase) {
   });
 }
 
+async function updateCommentCount(postId, increase) {
+  await prisma.post.update({
+    where: { id: postId },
+    data: {
+      commentCount: {
+        [increase ? 'increment' : 'decrement']: 1,
+      },
+    },
+  });
+}
+
 module.exports.writePost = writePost;
 module.exports.readPost = readPost;
 module.exports.deletePost = deletePost;
@@ -261,3 +276,4 @@ module.exports.getLike = getLike;
 module.exports.removeLike = removeLike;
 module.exports.addLike = addLike;
 module.exports.updateLikeCount = updateLikeCount;
+module.exports.updateCommentCount = updateCommentCount;

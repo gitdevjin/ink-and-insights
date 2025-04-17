@@ -9,13 +9,11 @@ module.exports = async (req, res) => {
 
     const data = await Post.readAll(subcategory, page);
 
-    res
-      .status(200)
-      .json({
-        message: 'Reading All BookReviews Successful',
-        posts: data.posts,
-        totalPosts: data.totalPosts,
-      });
+    res.status(200).json({
+      message: 'Reading All BookReviews Successful',
+      posts: data.posts,
+      totalPosts: data.totalPosts,
+    });
   } catch (err) {
     logger.error(err);
     return res.status(500).json({ message: 'Reading All BookReview Failed' });
