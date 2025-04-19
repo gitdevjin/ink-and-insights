@@ -31,5 +31,22 @@ async function readCommentAll(postId, pageNum) {
   });
 }
 
+async function updateComment(commentId, content) {
+  return await prisma.comment.update({
+    where: { id: commentId },
+    data: {
+      content,
+    },
+    include: {
+      user: {
+        include: {
+          profile: true,
+        },
+      },
+    },
+  });
+}
+
 module.exports.writeComment = writeComment;
 module.exports.readCommentAll = readCommentAll;
+module.exports.updateComment = updateComment;

@@ -1,3 +1,5 @@
+const { updateComment } = require('./data/remote/comment');
+
 const { writeComment, readCommentAll } = require('./data').comment;
 
 class Comment {
@@ -13,6 +15,10 @@ class Comment {
 
   static async readAll(postId, pageNum) {
     return await readCommentAll(postId, pageNum);
+  }
+
+  static async editComment(commentId, content) {
+    return await updateComment(commentId, content);
   }
 }
 
