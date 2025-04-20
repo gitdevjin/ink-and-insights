@@ -76,7 +76,7 @@ class Post {
 
   static async delete(postId) {
     const media = await getAllPostMedia(postId);
-    console.log(media);
+    logger.info(media);
     const mediaUrls = media.map((img) => img.url);
     await deletePostMedia(mediaUrls);
     await deletePost(postId);

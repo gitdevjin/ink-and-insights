@@ -6,7 +6,7 @@ module.exports = async (req, res) => {
     const { content } = req.body;
     const commentId = parseInt(req.params.id);
 
-    const result = await Comment.editComment(commentId, content);
+    const result = await Comment.edit(commentId, content);
 
     res.status(200).json({ message: 'Updating Comment Successful', comment: result });
   } catch (err) {

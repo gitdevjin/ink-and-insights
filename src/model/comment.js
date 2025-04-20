@@ -1,6 +1,5 @@
-const { updateComment } = require('./data/remote/comment');
-
-const { writeComment, readCommentAll } = require('./data').comment;
+const { writeComment, readCommentAll, readComment, updateComment, deleteComment } =
+  require('./data').comment;
 
 class Comment {
   constructor(userId, postId, content) {
@@ -17,8 +16,16 @@ class Comment {
     return await readCommentAll(postId, pageNum);
   }
 
-  static async editComment(commentId, content) {
+  static async edit(commentId, content) {
     return await updateComment(commentId, content);
+  }
+
+  static async readOne(commentId) {
+    return await readComment(commentId);
+  }
+
+  static async delete(commentId) {
+    return await deleteComment(commentId);
   }
 }
 

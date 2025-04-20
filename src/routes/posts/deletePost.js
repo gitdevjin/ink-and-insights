@@ -6,9 +6,9 @@ module.exports = async (req, res) => {
   try {
     const postId = parseInt(req.params.id);
 
-    const oldPost = await Post.readOne(postId);
+    const { post } = await Post.readOne(req.user.userId, postId);
 
-    if (oldPost.userId !== req.user.userId) {
+    if (post.userId !== req.user.userId) {
       res.status(403).json({ message: 'You have no right to Delete this post' });
     }
 

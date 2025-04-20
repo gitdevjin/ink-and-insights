@@ -10,7 +10,7 @@ module.exports = async (req, res) => {
 
     const { post, liked } = await Post.readOne(userId, postId);
     res.setHeader('Cache-Control', 'no-store');
-    res.status(200).json({ message: 'Reading One Post Successful', data: post, liked });
+    res.status(200).json({ message: 'Reading One Post Successful', data: post, liked: !!liked });
   } catch (err) {
     logger.error(err);
     return res.status(500).json({ message: 'Reading One Post Failed' });

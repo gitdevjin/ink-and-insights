@@ -5,6 +5,42 @@ const protocol = 'http://localhost:8080';
 
 const { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 
+async function readPost(postId) {
+  const id = parseInt(postId);
+
+  try {
+    const post = await prisma.post.update({
+      where: { id },
+      data: { view: { increment: 1 } }, // Increment view count
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        userId: true,
+        createdAt: true,
+        updatedAt: true,
+        subCategory: true,
+        view: true,
+        likeCount: true,
+        commentCount: true,
+        images: true,
+        user: {
+          include: {
+            profile: {
+              select: { nickname: true },
+            },
+          },
+        },
+      },
+    });
+
+    return post;
+  } catch (err) {
+    logger.info(err);
+    return null;
+  }
+}
+
 async function writePost(userId, title, content, subCategory, imageUrls, blobMappings) {
   let finalContent = content;
 
@@ -46,42 +82,6 @@ async function updatePost(postId, title, content, imageUrls, blobMappings) {
 
   logger.info(images);
   logger.info(finalContent);
-}
-
-async function readPost(postId) {
-  const id = parseInt(postId);
-
-  try {
-    const post = await prisma.post.update({
-      where: { id },
-      data: { view: { increment: 1 } }, // Increment view count
-      select: {
-        id: true,
-        title: true,
-        content: true,
-        userId: true,
-        createdAt: true,
-        updatedAt: true,
-        subCategory: true,
-        view: true,
-        likeCount: true,
-        commentCount: true,
-        images: true,
-        user: {
-          include: {
-            profile: {
-              select: { nickname: true },
-            },
-          },
-        },
-      },
-    });
-
-    return post;
-  } catch (err) {
-    logger.info(err);
-    return null;
-  }
 }
 
 async function deletePost(id) {
