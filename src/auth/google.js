@@ -44,6 +44,7 @@ module.exports.googleLogin = async (req, res) => {
             nickname: googleUser.given_name,
             firstName: googleUser.given_name,
             lastName: googleUser.family_name,
+            publicEmail: googleUser.email,
           },
         },
       },
