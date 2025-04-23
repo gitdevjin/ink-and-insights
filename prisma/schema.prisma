@@ -3,6 +3,7 @@
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// npx prisma migrate dev --name add-title-to-note
 
 generator client {
   provider = "prisma-client-js"
@@ -25,13 +26,16 @@ model User {
 }
 
 model Profile {
-  id        Int       @id @default(autoincrement())
-  nickname  String?
-  firstName String
-  lastName  String?
-  dob       DateTime?
-  userId    String    @unique
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          Int       @id @default(autoincrement())
+  nickname    String?
+  firstName   String
+  lastName    String?
+  dob         DateTime?
+  location    String?
+  bio         String?
+  publicEmail String?
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Post {
