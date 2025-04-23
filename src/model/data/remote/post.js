@@ -51,7 +51,7 @@ async function writePost(userId, title, content, subCategory, imageUrls, blobMap
   const subCategoryId = parseInt(subCategory);
   logger.info(finalContent);
 
-  await prisma.$transaction(async (prisma) => {
+  const post = await prisma.$transaction(async (prisma) => {
     const post = await prisma.post.create({
       data: { content: finalContent, title, subCategoryId, userId },
     });
@@ -61,7 +61,9 @@ async function writePost(userId, title, content, subCategory, imageUrls, blobMap
     });
 
     logger.info(images);
+    return post;
   });
+  return post;
 }
 
 async function updatePost(postId, title, content, imageUrls, blobMappings) {
@@ -85,7 +87,7 @@ async function updatePost(postId, title, content, imageUrls, blobMappings) {
 }
 
 async function deletePost(id) {
-  await prisma.post.delete({ where: { id } });
+  return await prisma.post.delete({ where: { id } });
 }
 
 async function writePostMedia(files) {

@@ -53,7 +53,14 @@ class Post {
       const imageUrls = await writePostMedia(files);
       logger.info(imageUrls);
 
-      await writePost(this.userId, this.title, this.content, this.category, imageUrls, mappings);
+      return await writePost(
+        this.userId,
+        this.title,
+        this.content,
+        this.category,
+        imageUrls,
+        mappings
+      );
     } catch (err) {
       logger.error('Post save failed', err);
       throw err;
@@ -79,7 +86,7 @@ class Post {
     logger.info(media);
     const mediaUrls = media.map((img) => img.url);
     await deletePostMedia(mediaUrls);
-    await deletePost(postId);
+    return await deletePost(postId);
   }
 
   static async toggleLike(userId, postId) {

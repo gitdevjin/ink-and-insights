@@ -12,9 +12,9 @@ module.exports = async (req, res) => {
       res.status(403).json({ message: 'You have no right to Delete this post' });
     }
 
-    await Post.delete(postId);
+    const result = await Post.delete(postId);
 
-    res.status(200).json({ message: 'Delete Post Successful' });
+    res.status(200).json({ message: 'Delete Post Successful', post: result });
   } catch (err) {
     logger.error(err);
     return res.status(500).json({ message: 'Delete Post Failed' });
