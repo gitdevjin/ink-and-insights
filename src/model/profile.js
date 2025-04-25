@@ -1,4 +1,4 @@
-const { readProfile } = require('./data').profile;
+const { readProfile, updateProfile } = require('./data').profile;
 
 class Profile {
   constructor(userId) {
@@ -7,6 +7,13 @@ class Profile {
 
   static async readOne(userId) {
     return await readProfile(userId);
+  }
+
+  /**
+  @profile is object 
+  * **/
+  static async edit(profile) {
+    return await updateProfile(profile);
   }
 }
 
