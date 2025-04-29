@@ -34,6 +34,7 @@ model Profile {
   location    String?
   bio         String?
   publicEmail String?
+  imageUrl    String?
   userId      String    @unique
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

@@ -92,7 +92,7 @@ async function deletePost(id) {
 
 async function writePostMedia(files) {
   const promises = files.map(async (file) => {
-    const s3Key = `images/${Date.now()}-${file.originalname}`;
+    const s3Key = `post/images/${Date.now()}-${file.originalname}`;
     const params = {
       Bucket: process.env.AWS_S3_BUCKET_NAME,
       Key: s3Key,

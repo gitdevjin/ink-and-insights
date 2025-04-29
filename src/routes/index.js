@@ -5,10 +5,11 @@ const authenticate = require('../auth/authenticate');
 
 router.use('/auth', require('./auth'));
 
-router.use('/images/:s3key', require('../routes/posts/readPostImage'));
 router.use('/post', authenticate, require('./posts'));
 router.use('/comment', authenticate, require('./comments'));
 router.use('/profile', authenticate, require('./profile'));
+router.use('/post/images/:s3key', require('../routes/posts/readPostImage'));
+router.use('/profile/images/:s3Key', require('../routes/profile/readProfileImage'));
 
 router.use('/api', require('./api'));
 

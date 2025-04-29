@@ -15,6 +15,10 @@ class Profile {
   static async edit(profile) {
     return await updateProfile(profile);
   }
+
+  // uploadProfileImage
+  // getProfileImageUrl
+  // readProfileImage
 }
 
 module.exports.Profile = Profile;
