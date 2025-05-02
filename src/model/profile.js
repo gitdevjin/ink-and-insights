@@ -1,4 +1,5 @@
-const { readProfile, updateProfile } = require('./data').profile;
+const { readProfile, updateProfile, updateImageUrl, storeImage, readProfileImage } =
+  require('./data').profile;
 
 class Profile {
   constructor(userId) {
@@ -16,9 +17,14 @@ class Profile {
     return await updateProfile(profile);
   }
 
-  // uploadProfileImage
-  // getProfileImageUrl
-  // readProfileImage
+  async updateProfileImage(file) {
+    const imageUrl = await storeImage(file);
+    return await updateImageUrl(this.userId, imageUrl);
+  }
+
+  static async getProfileImage(key) {
+    return await readProfileImage(key);
+  }
 }
 
 module.exports.Profile = Profile;

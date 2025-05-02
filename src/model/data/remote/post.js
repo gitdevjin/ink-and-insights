@@ -136,14 +136,15 @@ const streamToBuffer = (stream) =>
 async function readPostMedia(key) {
   const params = {
     Bucket: process.env.AWS_S3_BUCKET_NAME,
-    Key: `images/${key}`,
+    Key: `post/images/${key}`,
   };
 
   const command = new GetObjectCommand(params);
 
   try {
     const data = await s3Client.send(command);
-    return streamToBuffer(data.Body); //Promise<buffer>
+    const buffer = await streamToBuffer(data.Body);
+    return { buffer, contentType: data.ContentType };
   } catch (err) {
     console.error('Error streaming image from S3:', err);
   }

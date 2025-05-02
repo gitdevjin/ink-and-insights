@@ -5,11 +5,13 @@ const authenticate = require('../auth/authenticate');
 
 router.use('/auth', require('./auth'));
 
+/** This should preceed the /post or /profile route, otherwise, it will be snatched before**/
+router.use('/post/images/:s3key', require('../routes/posts/readPostImage'));
+router.use('/profile/images/:s3key', require('../routes/profile/readProfileImage'));
+/** **/
 router.use('/post', authenticate, require('./posts'));
 router.use('/comment', authenticate, require('./comments'));
 router.use('/profile', authenticate, require('./profile'));
-router.use('/post/images/:s3key', require('../routes/posts/readPostImage'));
-router.use('/profile/images/:s3Key', require('../routes/profile/readProfileImage'));
 
 router.use('/api', require('./api'));
 
