@@ -35,6 +35,23 @@ async function readCommentAll(postId, pageNum) {
   });
 }
 
+async function readCommentAllByUser(userId, pageNum) {
+  const pageSize = 15;
+  return await prisma.comment.findMany({
+    where: { userId },
+    skip: (pageNum - 1) * pageSize,
+    take: pageSize,
+    include: {
+      user: {
+        include: {
+          profile: true,
+        },
+      },
+      post: true,
+    },
+  });
+}
+
 async function updateComment(commentId, content) {
   return await prisma.comment.update({
     where: { id: commentId },
@@ -55,8 +72,16 @@ async function deleteComment(commentId) {
   return await prisma.comment.delete({ where: { id: commentId } });
 }
 
+async function readCommentCountByUser(userId) {
+  return await prisma.comment.count({
+    where: { userId },
+  });
+}
+
 module.exports.readComment = readComment;
 module.exports.writeComment = writeComment;
 module.exports.readCommentAll = readCommentAll;
 module.exports.updateComment = updateComment;
 module.exports.deleteComment = deleteComment;
+module.exports.readCommentAllByUser = readCommentAllByUser;
+module.exports.readCommentCountByUser = readCommentCountByUser;

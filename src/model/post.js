@@ -15,6 +15,9 @@ const {
   addLike,
   updateLikeCount,
   updateCommentCount,
+  readPostAllByUser,
+  readLikedPostByUser,
+  readLikedPostCount,
 } = require('./data').post;
 
 console.log(require('./data').post);
@@ -31,6 +34,16 @@ class Post {
 
   static async readAll(subcategory, pageNum) {
     return await readPostAll(subcategory, pageNum);
+  }
+
+  static async readAllByUser(userId, pageNum) {
+    return await readPostAllByUser(userId, pageNum);
+  }
+
+  static async readLikedPost(userId, pageNum) {
+    const totalLikedPosts = await readLikedPostCount(userId);
+    const likedPosts = await readLikedPostByUser(userId, pageNum);
+    return { totalLikedPosts, likedPosts };
   }
 
   static async readOne(userId, postId) {

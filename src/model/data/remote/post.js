@@ -192,6 +192,101 @@ async function readPostAll(subCategoryId, pageNum) {
   return { totalPosts, posts };
 }
 
+async function readPostAllByUser(userId, pageNum) {
+  logger.info('ReadPostAllByUser Triggered');
+
+  const pageSize = 15;
+
+  //*****This should be separated***********//
+  const totalPosts = await prisma.post.count({
+    where: { userId },
+  });
+  /*******************/
+
+  const posts = await prisma.post.findMany({
+    where: { userId },
+    skip: (pageNum - 1) * pageSize,
+    take: pageSize,
+    select: {
+      id: true,
+      title: true,
+      userId: true,
+      createdAt: true,
+      updatedAt: true,
+      subCategory: {
+        select: {
+          name: true,
+        },
+      },
+      view: true,
+      likeCount: true,
+      commentCount: true,
+      user: {
+        select: {
+          profile: {
+            select: {
+              nickname: true, // Get only the nickname
+            },
+          },
+        },
+      },
+    },
+  });
+
+  logger.info(posts);
+  return { totalPosts, posts };
+}
+
+async function readLikedPostByUser(userId, pageNum) {
+  logger.info('ReadLikedPostAllByUser Triggered');
+
+  if (!userId || typeof userId !== 'string') {
+    throw new Error('Invalid userId');
+  }
+  if (pageNum < 1) {
+    throw new Error('Page number must be at least 1');
+  }
+  const pageSize = 15;
+
+  return await prisma.postLike.findMany({
+    where: { userId },
+    skip: (pageNum - 1) * pageSize,
+    take: pageSize,
+    select: {
+      post: {
+        select: {
+          id: true,
+          title: true,
+          userId: true,
+          createdAt: true,
+          updatedAt: true,
+          subCategory: {
+            select: {
+              name: true,
+            },
+          },
+          view: true,
+          likeCount: true,
+          commentCount: true,
+          user: {
+            select: {
+              profile: {
+                select: {
+                  nickname: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+async function getLikedPostCount(userId) {
+  return await prisma.postLike.count({ where: userId });
+}
+
 async function getAllPostMedia(id) {
   const media = await prisma.image.findMany({ where: { postId: id } });
   return media;
@@ -280,3 +375,6 @@ module.exports.removeLike = removeLike;
 module.exports.addLike = addLike;
 module.exports.updateLikeCount = updateLikeCount;
 module.exports.updateCommentCount = updateCommentCount;
+module.exports.readPostAllByUser = readPostAllByUser;
+module.exports.readLikedPostByUser = readLikedPostByUser;
+module.exports.getLikedPostCount = getLikedPostCount;

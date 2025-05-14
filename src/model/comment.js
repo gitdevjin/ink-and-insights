@@ -1,5 +1,12 @@
-const { writeComment, readCommentAll, readComment, updateComment, deleteComment } =
-  require('./data').comment;
+const {
+  writeComment,
+  readCommentAll,
+  readCommentAllByUser,
+  readCommentCountByUser,
+  readComment,
+  updateComment,
+  deleteComment,
+} = require('./data').comment;
 
 class Comment {
   constructor(userId, postId, content) {
@@ -26,6 +33,12 @@ class Comment {
 
   static async delete(commentId) {
     return await deleteComment(commentId);
+  }
+  static async readAllByUser(userId, pageNum) {
+    return await readCommentAllByUser(userId, pageNum);
+  }
+  static async getCommentCountByUser(userId) {
+    return await readCommentCountByUser(userId);
   }
 }
 
