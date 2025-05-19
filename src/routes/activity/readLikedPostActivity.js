@@ -8,10 +8,11 @@ module.exports = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
 
     const data = await Post.readLikedPost(userId, page);
+    const likedPosts = data.likedPosts.map((item) => item.post);
 
     res.status(200).json({
       message: 'Reading All Post Activity Successful',
-      posts: data.likedPosts,
+      likedPosts: likedPosts,
       totalLikedPosts: data.totalLikedPosts,
     });
   } catch (err) {

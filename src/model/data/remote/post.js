@@ -284,7 +284,7 @@ async function readLikedPostByUser(userId, pageNum) {
 }
 
 async function getLikedPostCount(userId) {
-  return await prisma.postLike.count({ where: userId });
+  return await prisma.postLike.count({ where: { userId } });
 }
 
 async function getAllPostMedia(id) {

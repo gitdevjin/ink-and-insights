@@ -17,7 +17,7 @@ const {
   updateCommentCount,
   readPostAllByUser,
   readLikedPostByUser,
-  readLikedPostCount,
+  getLikedPostCount,
 } = require('./data').post;
 
 console.log(require('./data').post);
@@ -41,7 +41,7 @@ class Post {
   }
 
   static async readLikedPost(userId, pageNum) {
-    const totalLikedPosts = await readLikedPostCount(userId);
+    const totalLikedPosts = await getLikedPostCount(userId);
     const likedPosts = await readLikedPostByUser(userId, pageNum);
     return { totalLikedPosts, likedPosts };
   }
