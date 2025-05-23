@@ -18,6 +18,8 @@ const {
   readPostAllByUser,
   readLikedPostByUser,
   getLikedPostCount,
+  getPostCountByUser,
+  getPostCountByCategory,
 } = require('./data').post;
 
 console.log(require('./data').post);
@@ -33,11 +35,15 @@ class Post {
   }
 
   static async readAll(subcategory, pageNum) {
-    return await readPostAll(subcategory, pageNum);
+    const posts = await readPostAll(subcategory, pageNum);
+    const totalPosts = await getPostCountByCategory(subcategory);
+    return { totalPosts, posts };
   }
 
   static async readAllByUser(userId, pageNum) {
-    return await readPostAllByUser(userId, pageNum);
+    const posts = await readPostAllByUser(userId, pageNum);
+    const totalPosts = await getPostCountByUser(userId);
+    return { totalPosts, posts };
   }
 
   static async readLikedPost(userId, pageNum) {

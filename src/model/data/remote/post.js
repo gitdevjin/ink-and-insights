@@ -153,17 +153,10 @@ async function readPostMedia(key) {
 async function readPostAll(subCategoryId, pageNum) {
   logger.info('ReadPostAll Triggered');
 
-  const id = parseInt(subCategoryId);
   const pageSize = 15;
 
-  //*****This should be separated***********//
-  const totalPosts = await prisma.post.count({
-    where: { subCategoryId: id },
-  });
-  /*******************/
-
   const posts = await prisma.post.findMany({
-    where: { subCategoryId: id },
+    where: { subCategoryId },
     skip: (pageNum - 1) * pageSize,
     take: pageSize,
     select: {
@@ -189,19 +182,13 @@ async function readPostAll(subCategoryId, pageNum) {
   });
 
   logger.info(posts);
-  return { totalPosts, posts };
+  return posts;
 }
 
 async function readPostAllByUser(userId, pageNum) {
   logger.info('ReadPostAllByUser Triggered');
 
   const pageSize = 15;
-
-  //*****This should be separated***********//
-  const totalPosts = await prisma.post.count({
-    where: { userId },
-  });
-  /*******************/
 
   const posts = await prisma.post.findMany({
     where: { userId },
@@ -234,7 +221,7 @@ async function readPostAllByUser(userId, pageNum) {
   });
 
   logger.info(posts);
-  return { totalPosts, posts };
+  return posts;
 }
 
 async function readLikedPostByUser(userId, pageNum) {
@@ -361,6 +348,18 @@ async function updateCommentCount(postId, increase) {
   });
 }
 
+async function getPostCountByUser(userId) {
+  return await prisma.post.count({
+    where: { userId },
+  });
+}
+
+async function getPostCountByCategory(subCategoryId) {
+  return await prisma.post.count({
+    where: { subCategoryId },
+  });
+}
+
 module.exports.writePost = writePost;
 module.exports.readPost = readPost;
 module.exports.deletePost = deletePost;
@@ -378,3 +377,5 @@ module.exports.updateCommentCount = updateCommentCount;
 module.exports.readPostAllByUser = readPostAllByUser;
 module.exports.readLikedPostByUser = readLikedPostByUser;
 module.exports.getLikedPostCount = getLikedPostCount;
+module.exports.getPostCountByUser = getPostCountByUser;
+module.exports.getPostCountByCategory = getPostCountByCategory;

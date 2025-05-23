@@ -4,7 +4,7 @@ const { Post } = require('../../model/post');
 module.exports = async (req, res) => {
   try {
     logger.info('Bookreview Reading Triggered');
-    const subcategory = req.params.subcategory;
+    const subcategory = parseInt(req.params.subcategory);
     const page = parseInt(req.query.page) || 1;
 
     const data = await Post.readAll(subcategory, page);
