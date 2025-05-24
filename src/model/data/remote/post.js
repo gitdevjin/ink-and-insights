@@ -84,6 +84,7 @@ async function updatePost(postId, title, content, imageUrls, blobMappings) {
 
   logger.info(images);
   logger.info(finalContent);
+  return post;
 }
 
 async function deletePost(id) {
@@ -224,6 +225,38 @@ async function readPostAllByUser(userId, pageNum) {
   return posts;
 }
 
+async function readPostTopByStandard(postNum, standard) {
+  const posts = await prisma.post.findMany({
+    orderBy: {
+      [standard]: 'desc',
+    },
+    take: postNum,
+    select: {
+      id: true,
+      title: true,
+      userId: true,
+      createdAt: true,
+      updatedAt: true,
+      subCategory: true,
+      view: true,
+      likeCount: true,
+      commentCount: true,
+      user: {
+        select: {
+          profile: {
+            select: {
+              nickname: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  logger.info(posts);
+  return posts;
+}
+
 async function readLikedPostByUser(userId, pageNum) {
   logger.info('ReadLikedPostAllByUser Triggered');
 
@@ -268,6 +301,48 @@ async function readLikedPostByUser(userId, pageNum) {
       },
     },
   });
+}
+
+async function getSearchResult(keyword, page, max) {
+  logger.info('getSearch Result Triggered');
+
+  const posts = await prisma.post.findMany({
+    where: {
+      title: {
+        contains: keyword,
+        mode: 'insensitive',
+      },
+    },
+    skip: (page - 1) * max,
+    take: max,
+    select: {
+      id: true,
+      title: true,
+      userId: true,
+      createdAt: true,
+      updatedAt: true,
+      subCategory: {
+        select: {
+          name: true,
+        },
+      },
+      view: true,
+      likeCount: true,
+      commentCount: true,
+      user: {
+        select: {
+          profile: {
+            select: {
+              nickname: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  logger.info(posts);
+  return posts;
 }
 
 async function getLikedPostCount(userId) {
@@ -360,6 +435,17 @@ async function getPostCountByCategory(subCategoryId) {
   });
 }
 
+async function getPostCountByKeyword(keyword) {
+  return await prisma.post.count({
+    where: {
+      title: {
+        contains: keyword,
+        mode: 'insensitive',
+      },
+    },
+  });
+}
+
 module.exports.writePost = writePost;
 module.exports.readPost = readPost;
 module.exports.deletePost = deletePost;
@@ -379,3 +465,6 @@ module.exports.readLikedPostByUser = readLikedPostByUser;
 module.exports.getLikedPostCount = getLikedPostCount;
 module.exports.getPostCountByUser = getPostCountByUser;
 module.exports.getPostCountByCategory = getPostCountByCategory;
+module.exports.readPostTopByStandard = readPostTopByStandard;
+module.exports.getPostCountByKeyword = getPostCountByKeyword;
+module.exports.getSearchResult = getSearchResult;

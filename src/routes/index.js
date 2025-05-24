@@ -9,6 +9,8 @@ router.use('/auth', require('./auth'));
 router.use('/post/images/:s3key', require('../routes/posts/readPostImage'));
 router.use('/profile/images/:s3key', require('../routes/profile/readProfileImage'));
 /** **/
+router.use('/home/post/tops', require('./readTopPosts'));
+router.use('/home/search/:keyword', require('./searchResult'));
 router.get('/post/list/:subcategory', require('./posts/readPostAll'));
 router.use('/post', authenticate, require('./posts'));
 router.use('/comment', authenticate, require('./comments'));

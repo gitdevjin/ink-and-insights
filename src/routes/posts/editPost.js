@@ -35,9 +35,9 @@ module.exports = async (req, res) => {
 
     logger.info('blobMappings', blobMappings);
 
-    await Post.edit(postId, title, content, deletedImages, files, blobMappings);
+    const post = await Post.edit(postId, title, content, deletedImages, files, blobMappings);
 
-    res.status(200).json({ message: 'Editing bookReview Successful' });
+    res.status(200).json({ message: 'Editing bookReview Successful', post: post });
   } catch (err) {
     logger.error(err);
     return res.status(500).json({ message: 'Posting bookReview Failed' });

@@ -20,6 +20,9 @@ const {
   getLikedPostCount,
   getPostCountByUser,
   getPostCountByCategory,
+  readPostTopByStandard,
+  getSearchResult,
+  getPostCountByKeyword,
 } = require('./data').post;
 
 console.log(require('./data').post);
@@ -50,6 +53,16 @@ class Post {
     const totalLikedPosts = await getLikedPostCount(userId);
     const likedPosts = await readLikedPostByUser(userId, pageNum);
     return { totalLikedPosts, likedPosts };
+  }
+
+  static async readTopPost(postNum, standard) {
+    return readPostTopByStandard(postNum, standard);
+  }
+
+  static async readSearchResult(keyword, page, max) {
+    const posts = await getSearchResult(keyword, page, max);
+    const totalPosts = await getPostCountByKeyword(keyword);
+    return { posts, totalPosts };
   }
 
   static async readOne(userId, postId) {
@@ -92,12 +105,13 @@ class Post {
     const imageUrls = await writePostMedia(files);
 
     //UpdatePost
-    await updatePost(postId, title, content, imageUrls, mappings);
+    const post = await updatePost(postId, title, content, imageUrls, mappings);
 
     //Delete old Media
     await deletePostMedia(deletedImages);
 
     logger.info(imageUrls);
+    return post;
   }
 
   static async delete(postId) {
