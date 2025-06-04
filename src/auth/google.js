@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const logger = require('../logger');
 const prisma = require('../model/data/remote/prisma');
+const { User } = require('../model/user');
 
 const ACCESS_SECRET = process.env.ACCESS_TOKEN_SECRET;
 const REFRESH_SECRET = process.env.REFRESH_TOKEN_SECRET;
@@ -34,24 +35,7 @@ module.exports.googleLogin = async (req, res) => {
 
     logger.info(googleUser);
 
-    const user = await prisma.user.upsert({
-      where: { email: googleUser.email },
-      update: {}, // No need to update anything for now
-      create: {
-        email: googleUser.email,
-        profile: {
-          create: {
-            nickname: googleUser.given_name,
-            firstName: googleUser.given_name,
-            lastName: googleUser.family_name,
-            publicEmail: googleUser.email,
-          },
-        },
-      },
-      include: {
-        profile: true, // Fetch profile as well
-      },
-    });
+    const user = await User.create(googleUser.email, googleUser.given_name, googleUser.family_name);
 
     logger.info(user);
 
@@ -60,6 +44,7 @@ module.exports.googleLogin = async (req, res) => {
 
     // Update database with refreshToken
     await prisma.user.update({ where: { id: user.id }, data: { refreshToken: refreshToken } });
+    User.updateToken(user.id, refreshToken);
 
     // Send refresh token as http-only cookie (not accessible by JS)
     res.cookie('refreshToken', refreshToken, {
@@ -82,7 +67,7 @@ module.exports.googleRefresh = async (req, res) => {
   try {
     const { userId, name } = jwt.verify(token, REFRESH_SECRET);
 
-    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const user = await User.findUserById(userId);
 
     if (user.refreshToken !== token) {
       return res.status(403).json({ error: 'Invalid refresh token' });
@@ -92,7 +77,7 @@ module.exports.googleRefresh = async (req, res) => {
     const { accessToken, refreshToken } = generateTokens(userId, name);
 
     // update the refreshToken in database
-    await prisma.user.update({ where: { id: userId }, data: { refreshToken: refreshToken } });
+    await User.updateToken(userId, refreshToken);
 
     res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: false, sameSite: 'strict' });
     res.json({ accessToken });
