@@ -1,7 +1,8 @@
 const logger = require('../../../logger');
 const s3Client = require('./s3Client');
 const prisma = require('./prisma');
-const protocol = 'http://localhost:8080';
+const protocol = process.env.API_SERVER_URL;
+
 const {
   PutObjectCommand,
   GetObjectCommand /*DeleteObjectCommand*/,
